@@ -9,9 +9,23 @@ lto = true      # better optimizations
 opt-level = "z"
 
 [features]
+# Special board support
+mimxrt685s-evk = ["imxrt-fcb-rt685evk", "mimxrt685s"]
+
+# FCB support
+imxrt-fcb-rt685evk = ["mimxrt685s"]
+imxrt-fcb-1spi-a1-nor = ["imxrt-fcb-1spi-nor"]
+imxrt-fcb-1spi-b1-nor = ["imxrt-fcb-1spi-nor"]
+imxrt-fcb-1spi-nor = ["imxrt"]
+
+# chip variants
 mimxrt685s = ["imxrt"]
 mimxrt633s = ["imxrt"]
+
+# common imxrt features
 imxrt = ["dep:mimxrt600-fcb"]
+
+# optional debug logging 
 defmt = ["dep:defmt", "dep:defmt-rtt"]
 
 [dependencies]

@@ -16,7 +16,7 @@
         "${workspaceFolder}/Cargo.toml",
     ],
     "rust-analyzer.cargo.features": [
-        "mimxrt685s",
+        "mimxrt685s-evk",
         "imxrt"
     ]
 }

@@ -11,11 +11,9 @@ MEMORY {
   FLASH              : ORIGIN = 0x08001000, LENGTH = 1M
 }
 
-/* link descriptors at FLASH address after __bootloader_max_size */
-__bootable_region_descriptors_address = ORIGIN(FLASH) + __bootloader_max_size;
+/* link descriptors at FLASH address after 32KB Bootloader Range */
+__bootable_region_descriptors_address = 0x08009000;
 
-__bootloader_max_size  = LENGTH(IRAM); /* for debug image loading */
-__bootloader_data_size = LENGTH(RAM);  /* for RAM buffering as needed */
 __bootloader_ivec_size = 0x130;        /*  */
 
 /* # Entry point = reset vector */

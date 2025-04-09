@@ -17,7 +17,7 @@ fn copy_image(_app_descriptor: &AppImageDescriptor) {
         raw_copy_to_ram(
             _app_descriptor.stored_address as *const u32,
             _app_descriptor.execution_address as *mut u32,
-            _app_descriptor.execution_copy_size_bytes as usize,
+            _app_descriptor.execution_copy_size_bytes as usize / size_of::<u32>(),
         );
     }
 }

@@ -11,13 +11,25 @@ mod imxrt;
 #[cfg(feature = "imxrt")]
 use imxrt::{raw_copy_to_ram, validate_crc};
 
+#[cfg(not(feature = "imxrt"))]
+mod unsupported {
+    use super::*;
+
+    pub unsafe fn raw_copy_to_ram(_from: *const u32, _to: *mut u32, _len_words: usize) {}
+    pub fn validate_crc(_app_descriptor: &AppImageDescriptor) -> bool {
+        true
+    }
+}
+#[cfg(not(feature = "imxrt"))]
+use unsupported::*;
+
 fn copy_image(_app_descriptor: &AppImageDescriptor) {
     // TODO allow other scenarios supported from bootloader aside from copy to RAM
     unsafe {
         raw_copy_to_ram(
             _app_descriptor.stored_address as *const u32,
             _app_descriptor.execution_address as *mut u32,
-            _app_descriptor.execution_copy_size_bytes as usize / size_of::<u32>(),
+            _app_descriptor.execution_copy_size_bytes as usize / core::mem::size_of::<u32>(),
         );
     }
 }
@@ -108,10 +120,10 @@ fn main() -> ! {
     let active_app_descriptor = descriptors.get_active_slot();
 
     #[cfg(feature = "defmt")]
-    defmt::info!(
-        "Bootloader: Active App slot is {}",
-        active_app_descriptor.app_slot_number
-    );
+    {
+        let slot = active_app_descriptor.app_slot_number;
+        defmt::info!("Bootloader: Active App slot is {}", slot);
+    }
 
     let boot_image = if active_app_descriptor.flags & APP_IMAGE_FLAG_SKIP_IMAGE_CRC_CHECK != 0 {
         #[cfg(feature = "defmt")]
@@ -136,10 +148,13 @@ fn main() -> ! {
         }
 
         #[cfg(feature = "defmt")]
-        defmt::info!(
-            "Bootloader: Validation complete and branching to application execution address {:x}.",
-            active_app_descriptor.execution_address
-        );
+        {
+            let xaddr = active_app_descriptor.execution_address;
+            defmt::info!(
+                "Bootloader: Validation complete and branching to application execution address {:x}.",
+                xaddr
+            );
+        }
 
         // branch to location as described by descriptor
         unsafe {

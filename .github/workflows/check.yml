@@ -59,11 +59,14 @@ jobs:
       fail-fast: false
       matrix:
         commit: ${{ fromJSON(needs.commit_list.outputs.commits) }}
+        target: [thumbv8m.main-none-eabihf]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
           ref: ${{ matrix.commit }}
+      - name: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.target }}
       - name: Install nightly
         uses: dtolnay/rust-toolchain@nightly
         with:
@@ -84,6 +87,7 @@ jobs:
         # Get early warning of new lints which are regularly introduced in beta channels.
         toolchain: [stable, beta]
         commit: ${{ fromJSON(needs.commit_list.outputs.commits) }}
+        target: [thumbv8m.main-none-eabihf]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,6 +98,8 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           components: clippy
+      - name: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.target }}
       - name: cargo clippy
         uses: giraffate/clippy-action@v1
         with:
@@ -133,6 +139,7 @@ jobs:
       fail-fast: false
       matrix:
         commit: ${{ fromJSON(needs.commit_list.outputs.commits) }}
+        target: [thumbv8m.main-none-eabihf]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -140,8 +147,10 @@ jobs:
           ref: ${{ matrix.commit }}
       - name: Install nightly
         uses: dtolnay/rust-toolchain@nightly
+      - name: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.target }}
       - name: cargo doc
-        run: cargo doc --no-deps --all-features
+        run: cargo doc --no-deps
         env:
           RUSTDOCFLAGS: --cfg docsrs
 
@@ -155,6 +164,7 @@ jobs:
       fail-fast: false
       matrix:
         commit: ${{ fromJSON(needs.commit_list.outputs.commits) }}
+        target: [thumbv8m.main-none-eabihf]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -162,12 +172,13 @@ jobs:
           ref: ${{ matrix.commit }}
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
+      - name: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.target }}
       - name: cargo install cargo-hack
         uses: taiki-e/install-action@cargo-hack
       # intentionally no target specifier; see https://github.com/jonhoo/rust-ci-conf/pull/4
-      # --feature-powerset runs for every combination of features
       - name: cargo hack
-        run: cargo hack --feature-powerset check
+        run: cargo hack --each-feature --exclude-all-features check
 
   deny:
     # cargo-deny checks licenses, advisories, sources, and bans for
@@ -179,6 +190,7 @@ jobs:
       fail-fast: false
       matrix:
         commit: ${{ fromJSON(needs.commit_list.outputs.commits) }}
+        target: [thumbv8m.main-none-eabihf]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -186,13 +198,14 @@ jobs:
           ref: ${{ matrix.commit }}
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
+      - name: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.target }}
       - name: cargo install cargo-deny
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
           log-level: warn
           manifest-path: ./Cargo.toml
           command: check
-          arguments: --all-features
 
   msrv:
     # check that we can build using the minimal rust version that is specified by this crate
@@ -215,6 +228,7 @@ jobs:
                        #
                        # embassy-time requires 1.79 due to
                        # collapse_debuginfo
+        target: [thumbv8m.main-none-eabihf]
     name: ubuntu / ${{ matrix.msrv }} (${{ matrix.commit }})
     steps:
       - uses: actions/checkout@v4
@@ -224,6 +238,8 @@ jobs:
       - name: Install ${{ matrix.msrv }}
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.msrv }}
+          toolchain: ${{ matrix.msrv }}  
+      - name: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.target }}
       - name: cargo +${{ matrix.msrv }} check
         run: cargo check

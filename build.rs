@@ -4,7 +4,9 @@ use std::io::Write;
 use std::path::PathBuf;
 
 fn main() {
-    if env::var("CARGO_FEATURE_IMXRT").is_ok() {
+    // TODO: add check back when adding support for other chipsets
+    /*if env::var("CARGO_FEATURE_IMXRT").is_ok()*/
+    {
         // Put corresponding linker script in our output directory and ensure it's
         // on the linker search path.
         let out = &PathBuf::from(env::var_os("OUT_DIR").unwrap());

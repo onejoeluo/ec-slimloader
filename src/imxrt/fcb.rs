@@ -1,21 +1,26 @@
-#[cfg(feature = "imxrt-fcb-rt685evk")]
-use mimxrt600_fcb::FlexSpiLutOpcode::{
-    CMD_DDR, CMD_SDR, DUMMY_DDR, RADDR_DDR, READ_DDR, READ_SDR, STOP, WRITE_DDR, WRITE_SDR,
-};
-#[cfg(feature = "imxrt-fcb-1spi-nor")]
-use mimxrt600_fcb::FlexSpiLutOpcode::{CMD_SDR, RADDR_SDR, READ_SDR, STOP};
-#[cfg(feature = "imxrt-fcb-1spi-nor")]
+use mimxrt600_fcb::FlexSpiLutOpcode::{CMD_SDR, READ_SDR, STOP};
 use mimxrt600_fcb::FlexSpiNumPads::Single;
-#[cfg(feature = "imxrt-fcb-rt685evk")]
-use mimxrt600_fcb::FlexSpiNumPads::{Octal, Single};
 use mimxrt600_fcb::{flexspi_lut_seq, FlexSPIFlashConfigurationBlock};
+
+#[cfg(all(feature = "imxrt-fcb-1spi-nor", feature = "imxrt-fcb-rt685evk"))]
+compile_error!("Cannot allocate more than one FCB at a time!");
+
+#[cfg(all(feature = "imxrt-fcb-1spi-a1-nor", feature = "imxrt-fcb-1spi-b1-nor"))]
+compile_error!("Cannot configure FCB for more than one bank at a time!");
+
+#[cfg(feature = "imxrt-fcb-1spi-nor")]
+use mimxrt600_fcb::FlexSpiLutOpcode::RADDR_SDR;
+#[cfg(feature = "imxrt-fcb-rt685evk")]
+use mimxrt600_fcb::FlexSpiLutOpcode::{CMD_DDR, DUMMY_DDR, RADDR_DDR, READ_DDR, WRITE_DDR, WRITE_SDR};
+#[cfg(feature = "imxrt-fcb-rt685evk")]
+use mimxrt600_fcb::FlexSpiNumPads::Octal;
 #[cfg(feature = "imxrt-fcb-1spi-nor")]
 use mimxrt600_fcb::{ControllerMiscOption, SFlashPadType, SerialClkFreq, SerialNORType};
 
 #[cfg(feature = "imxrt-fcb-rt685evk")]
 #[link_section = ".fcb"]
 #[used]
-static FCB: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::build().lookup_table([
+static FCB_685EVK: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::build().lookup_table([
     // Read
     flexspi_lut_seq(CMD_DDR, Octal, 0xee, CMD_DDR, Octal, 0x11),
     flexspi_lut_seq(RADDR_DDR, Octal, 0x20, DUMMY_DDR, Octal, 0x29),
@@ -98,7 +103,7 @@ static FCB: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::bui
 #[cfg(feature = "imxrt-fcb-1spi-a1-nor")]
 #[link_section = ".fcb"]
 #[used]
-static FCB: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::build()
+static FCB_A1NOR: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::build()
     .device_mode_cfg_enable(0)
     .wait_time_cfg_commands(0)
     .device_mode_arg([0; 4])
@@ -184,7 +189,7 @@ static FCB: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::bui
 #[cfg(feature = "imxrt-fcb-1spi-b1-nor")]
 #[link_section = ".fcb"]
 #[used]
-static FCB: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::build()
+static FCB_B1NOR: FlexSPIFlashConfigurationBlock = FlexSPIFlashConfigurationBlock::build()
     .device_mode_cfg_enable(0)
     .wait_time_cfg_commands(0)
     .device_mode_arg([0; 4])

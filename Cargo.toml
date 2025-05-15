@@ -29,7 +29,7 @@ imxrt = ["dep:mimxrt600-fcb"]
 defmt = ["dep:defmt", "dep:defmt-rtt"]
 
 [dependencies]
-ec-slimloader-descriptors = { git = "https://github.com/OpenDevicePartnership/ec-slimloader-descriptors" }
+ec-slimloader-descriptors = { git = "https://github.com/OpenDevicePartnership/ec-slimloader-descriptors", rev = "cee1877"  }
 
 crc = "3.2.1"
 
